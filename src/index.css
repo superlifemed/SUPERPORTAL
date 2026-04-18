@@ -18,6 +18,10 @@
   --color-surface: #1E0C3E;
   --color-surface-border: #311862;
   --color-text-dim: #94A3B8;
+  --color-crimson: #C0132A;
+  --color-crimson-dark: #8A0D1E;
+  --color-crimson-glow: rgba(192,19,42,0.12);
+  --color-purple-glow: rgba(139,92,246,0.1);
 }
 
 @layer base {
@@ -32,31 +36,33 @@
 
 @layer components {
   .logo-text {
-    @apply font-display font-bold italic uppercase tracking-[0.15em];
-    background: linear-gradient(135deg, #FFFFFF 0%, #F43F5E 50%, #8B5CF6 100%);
+    @apply font-display font-bold italic uppercase tracking-[0.15em] relative;
+    background: linear-gradient(135deg, #FFFFFF 0%, #C0132A 50%, #8B5CF6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.2));
   }
 
   .sidebar-link {
-    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-text-dim hover:text-white hover:bg-white/5 italic text-[13px];
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-500 text-text-dim hover:text-white hover:bg-white/5 italic text-[13px] font-bold;
   }
   
   .sidebar-link.active {
-    @apply text-white bg-vibrant-purple shadow-[0_4px_15px_rgba(139,92,246,0.3)] italic scale-[1.01];
+    @apply text-white bg-crimson shadow-[0_10px_30px_rgba(192,19,42,0.2)] scale-[1.02];
   }
 
   .btn-primary {
-    @apply bg-gradient-to-br from-brand-red to-brand-red-dark text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-brand-red/20 active:scale-95 flex items-center justify-center gap-2 italic text-sm;
+    @apply bg-crimson text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-xl hover:shadow-crimson/20 active:scale-95 flex items-center justify-center gap-2 italic text-sm uppercase tracking-widest border border-crimson/30;
   }
 
   .card-surface {
-    @apply bg-surface border border-surface-border rounded-[1.5rem] p-6 md:p-8 transition-all duration-500 shadow-xl hover:border-vibrant-purple/30 hover:shadow-vibrant-purple/5 hover:-translate-y-1;
+    @apply bg-void border border-surface-border rounded-[20px] p-6 md:p-8 transition-all duration-300 relative overflow-hidden;
+  }
+  .card-surface:hover {
+    @apply border-crimson/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)];
   }
 
   .form-input {
-    @apply w-full bg-void border border-surface-border rounded-xl p-3.5 text-sm text-white focus:outline-none focus:border-vibrant-purple focus:ring-1 focus:ring-vibrant-purple/20 transition-all duration-300 placeholder:text-text-dim/30 italic;
+    @apply w-full bg-surface/30 border border-surface-border rounded-xl p-4 text-sm text-white focus:outline-none focus:border-crimson focus:ring-1 focus:ring-crimson/20 transition-all duration-300 placeholder:text-text-dim/20 italic font-medium;
   }
 
   .form-input:invalid:not(:placeholder-shown) {
@@ -64,15 +70,86 @@
   }
 
   .form-label {
-    @apply block text-[10px] font-black uppercase tracking-[0.15em] text-text-dim/60 mb-2 ml-2 italic;
+    @apply block text-[10px] font-black uppercase tracking-[0.4em] text-text-dim/40 mb-3 ml-1 italic;
   }
 
   .tab-pill {
-    @apply px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 text-text-dim bg-surface border border-surface-border hover:text-white hover:border-vibrant-purple/50 italic;
+    @apply px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all duration-500 text-text-dim bg-void border border-surface-border hover:text-white hover:border-crimson/40 italic;
   }
 
   .tab-pill.active {
-    @apply bg-vibrant-purple text-white shadow-md border-vibrant-purple;
+    @apply bg-crimson text-white shadow-[0_8px_20px_rgba(192,19,42,0.2)] border-crimson;
+  }
+
+  .home-card {
+    @apply bg-void border border-surface-border rounded-[20px] p-7 transition-all duration-300 relative overflow-hidden;
+  }
+  .home-card:hover {
+    @apply -translate-y-1 border-crimson/30 shadow-[0_20px_40px_rgba(192,19,42,0.1)];
+  }
+  .home-card::before {
+    content: '';
+    @apply absolute left-0 top-0 h-full w-[2px] bg-crimson origin-bottom scale-y-0 transition-transform duration-300;
+  }
+  .home-card:hover::before {
+    @apply scale-y-100;
+  }
+
+  .home-card-devotional:hover {
+    @apply border-vibrant-purple/30 shadow-[0_20px_40px_rgba(139,92,246,0.1)];
+  }
+  .home-card-devotional:hover::before {
+    @apply bg-vibrant-purple;
+  }
+
+  .grid-bg {
+    @apply absolute inset-0 pointer-events-none opacity-[0.03];
+    background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .home-hero-title {
+    @apply font-display font-bold italic leading-[0.95] tracking-[-0.02em] bg-clip-text text-transparent;
+    font-size: clamp(4rem, 10vw, 7rem);
+    background-image: linear-gradient(to bottom, #FFFFFF 0%, rgba(255,255,255,0.5) 100%);
+  }
+
+  .section-title {
+    @apply font-display font-bold italic leading-tight tracking-tight bg-clip-text text-transparent;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    background-image: linear-gradient(to bottom, #FFFFFF 0%, rgba(255,255,255,0.3) 100%);
+  }
+
+  .card-icon-wrap {
+    @apply w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 rounded-[10px] mb-5;
+  }
+
+  .card-arrow {
+    @apply absolute bottom-6 right-6 text-crimson opacity-0 -translate-x-1.5 transition-all duration-200;
+  }
+  .home-card:hover .card-arrow {
+    @apply opacity-100 translate-x-0;
+  }
+  .home-card-devotional .card-arrow {
+    @apply text-vibrant-purple;
+  }
+
+  .geo-bg {
+    @apply absolute top-1/2 -right-[100px] -translate-y-1/2 w-[500px] h-[500px] border border-vibrant-purple/5 rounded-full pointer-events-none;
+  }
+  .geo-bg::before, .geo-bg::after {
+    content: '';
+    @apply absolute inset-10 border border-vibrant-purple/5 rounded-full;
+  }
+  .geo-bg::after {
+    @apply inset-20;
+  }
+
+  .quick-link {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full border border-surface-border text-[12px] text-text-dim transition-all duration-200;
+  }
+  .quick-link:hover {
+    @apply border-crimson text-white;
   }
 
   .solid-glow {
@@ -99,6 +176,16 @@
   opacity: 0.01;
   z-index: 999;
 }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up-1 { animation: fadeUp 0.6s ease forwards; opacity: 0; }
+.fade-up-2 { animation: fadeUp 0.6s ease 0.15s forwards; opacity: 0; }
+.fade-up-3 { animation: fadeUp 0.6s ease 0.3s forwards; opacity: 0; }
+.fade-up-4 { animation: fadeUp 0.6s ease 0.45s forwards; opacity: 0; }
+.fade-up-5 { animation: fadeUp 0.6s ease 0.6s forwards; opacity: 0; }
 
 .page-transition-enter {
   opacity: 0;
