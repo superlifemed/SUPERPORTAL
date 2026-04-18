@@ -761,6 +761,9 @@ function AttendanceForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     date: new Date().toISOString().split('T')[0], 
     total: '', 
     firstTimers: '', 
+    men: '',
+    women: '',
+    children: '',
     notes: '' 
   });
 
@@ -769,7 +772,7 @@ function AttendanceForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     setLoading(true);
     await submitForm(APPS_SCRIPT_URLS.attendance, { ...formData, formType: "attendance" });
     onSuccess();
-    setFormData({ eventType: '', customEvent: '', date: new Date().toISOString().split('T')[0], total: '', firstTimers: '', notes: '' });
+    setFormData({ eventType: '', customEvent: '', date: new Date().toISOString().split('T')[0], total: '', firstTimers: '', men: '', women: '', children: '', notes: '' });
     setLoading(false);
   };
 
@@ -810,8 +813,23 @@ function AttendanceForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
           <input required type="number" min="0" placeholder="0" value={formData.firstTimers} onChange={e => setFormData({...formData, firstTimers: e.target.value})} className="form-input" />
         </div>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-white/5">
+        <div>
+          <label className="form-label">Men</label>
+          <input type="number" min="0" placeholder="0" value={formData.men} onChange={e => setFormData({...formData, men: e.target.value})} className="form-input" />
+        </div>
+        <div>
+          <label className="form-label">Women</label>
+          <input type="number" min="0" placeholder="0" value={formData.women} onChange={e => setFormData({...formData, women: e.target.value})} className="form-input" />
+        </div>
+        <div>
+          <label className="form-label">Children</label>
+          <input type="number" min="0" placeholder="0" value={formData.children} onChange={e => setFormData({...formData, children: e.target.value})} className="form-input" />
+        </div>
+      </div>
       <div>
-        <label className="form-label">Deployment Notes</label>
+        <label className="form-label">Notes</label>
         <textarea rows={3} placeholder="Additional context..." value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="form-input resize-none" />
       </div>
       <button disabled={loading} type="submit" className="btn-primary w-full">
