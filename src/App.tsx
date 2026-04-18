@@ -79,7 +79,7 @@ const SuccessModal = ({ isOpen, onClose, message }: { isOpen: boolean, onClose: 
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<Section>('home');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [successModal, setSuccessModal] = useState<{isOpen: boolean, message: string}>({ isOpen: false, message: '' });
 
   const closeSuccessModal = () => setSuccessModal({ ...successModal, isOpen: false });
@@ -201,91 +201,149 @@ export default function App() {
 // --- SECTION: HOME ---
 
 function HomeSection({ navigateTo, openSuccessModal }: { navigateTo: (s: Section) => void, openSuccessModal: (m: string) => void, key?: any }) {
-  const [activeForm, setActiveForm] = useState<'testimony' | 'prayer' | 'contact'>('testimony');
+  const [activeForm, setActiveForm] = useState<'testimony' | 'prayer' | 'contact' | null>(null);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
+  if (activeForm) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        className="max-w-xl mx-auto"
+      >
+        <button 
+          onClick={() => setActiveForm(null)}
+          className="flex items-center gap-2 text-text-dim hover:text-white mb-8 group transition-colors italic font-bold text-xs uppercase tracking-widest"
+        >
+          <ChevronRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" />
+          Back to Overview
+        </button>
+
+        <div className="card-surface bg-gradient-to-br from-surface to-void border-vibrant-purple/10">
+          <h3 className="text-3xl font-display mb-8 italic">
+            {activeForm === 'testimony' && "Share Your Testimony"}
+            {activeForm === 'prayer' && "Prayer & Requests"}
+            {activeForm === 'contact' && "Inquiry & Feedback"}
+          </h3>
+          
+          {activeForm === 'testimony' && <TestimonyForm onSuccess={() => { openSuccessModal('Your testimony has been shared.'); setActiveForm(null); }} />}
+          {activeForm === 'prayer' && <PrayerForm onSuccess={() => { openSuccessModal('Your prayer request has been received.'); setActiveForm(null); }} />}
+          {activeForm === 'contact' && <ContactForm onSuccess={() => { openSuccessModal('Your feedback has been submitted.'); setActiveForm(null); }} />}
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div 
-      initial="page-transition-enter"
-      animate="page-transition-enter-active"
-      exit="page-transition-exit"
-      className="space-y-12 md:space-y-20"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-16 md:space-y-24 py-10"
     >
-      <div className="welcome-header">
-        <h2 className="text-4xl md:text-7xl font-display mb-2 md:mb-4 leading-[1.1] italic bg-gradient-to-br from-white via-white to-text-dim bg-clip-text text-transparent">SuperPortal</h2>
-        <p className="text-[10px] md:text-sm text-text-dim uppercase tracking-[0.2em] italic font-bold">serving internal operations at Supernatural Life Church</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
-        {/* Key Feature: Testimony Spotlight */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="card-surface flex flex-col h-full bg-gradient-to-br from-surface to-void border-vibrant-purple/10"
-        >
-          <div className="flex items-center gap-4 mb-6 md:mb-8">
-            <div className="p-3 bg-vibrant-purple/20 rounded-xl shadow-lg">
-              <CheckCircle2 className="w-6 h-6 text-vibrant-purple" />
-            </div>
-            <div>
-              <h3 className="text-2xl md:text-3xl font-display italic">Testimony</h3>
-              <p className="text-text-dim text-[11px] italic font-bold tracking-widest uppercase opacity-60">Share what God is doing</p>
-            </div>
-          </div>
-          
-          <p className="text-text-dim text-sm md:text-base mb-8 leading-relaxed italic">
-            Your testimony is a powerful tool for building faith. Whether it's a financial miracle, physical healing, or spiritual breakthrough, we want to hear it.
+      <motion.div variants={itemVariants} className="text-center max-w-4xl mx-auto">
+        <h2 className="text-5xl md:text-8xl font-display mb-6 md:mb-10 leading-[0.9] italic bg-gradient-to-b from-white via-white to-white/20 bg-clip-text text-transparent">
+          SuperPortal
+        </h2>
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="h-px bg-brand-red/30 flex-1 max-w-[60px]" />
+          <p className="text-[10px] md:text-sm text-brand-red uppercase tracking-[0.4em] italic font-black">
+            Supernatural Life Church
           </p>
-
-          <div className="mt-auto">
-            <TestimonyForm onSuccess={() => openSuccessModal('Your testimony has been shared.')} />
-          </div>
-        </motion.div>
-
-        {/* Quick Access Area */}
-        <div className="space-y-6 md:space-y-10">
-          <div className="card-surface bg-void/50 border-surface-border">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-2.5 bg-brand-red/20 rounded-xl">
-                <Send className="w-5 h-5 text-brand-red" />
-              </div>
-              <h3 className="text-2xl font-display italic">Prayer & Requests</h3>
-            </div>
-            <p className="text-text-dim text-sm mb-6 italic">Submit your requests to the pastoral team and let us stand in faith with you.</p>
-            <PrayerForm onSuccess={() => openSuccessModal('Your prayer request has been received.')} />
-          </div>
-
-          <div className="card-surface bg-regal/10 border-surface-border">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-2.5 bg-vibrant-purple/20 rounded-xl">
-                <FileText className="w-5 h-5 text-vibrant-purple" />
-              </div>
-              <h3 className="text-2xl font-display italic">Inquiry & Feedback</h3>
-            </div>
-            <ContactForm onSuccess={() => openSuccessModal('Your feedback has been submitted.')} />
-          </div>
+          <div className="h-px bg-brand-red/30 flex-1 max-w-[60px]" />
         </div>
-      </div>
-      
-      {/* Secondary Dashboard Links */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pt-6">
+        <p className="text-text-dim/60 text-sm md:text-lg max-w-2xl mx-auto italic leading-relaxed">
+          serving internal operations and connecting our community with faith, prayer, and purpose.
+        </p>
+      </motion.div>
+
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 max-w-6xl mx-auto">
         {[
-          { id: 'general', title: 'New Member', icon: Users, color: 'brand-red' },
-          { id: 'experience', title: 'Attendance Tracker', icon: Calendar, color: 'vibrant-purple' },
-          { id: 'finance', title: 'Finance Vouchers', icon: DollarSign, color: 'text-white' },
+          { 
+            id: 'testimony', 
+            title: 'Share Your Testimony', 
+            icon: CheckCircle2, 
+            color: 'divine-gold',
+            bg: 'from-divine-gold/15 to-void',
+            border: 'border-divine-gold/20',
+            glow: 'rgba(255,215,0,0.15)'
+          },
+          { 
+            id: 'prayer', 
+            title: 'Prayer & Requests', 
+            icon: Send, 
+            color: 'faith-blue',
+            bg: 'from-faith-blue/15 to-void',
+            border: 'border-faith-blue/20',
+            glow: 'rgba(59,130,246,0.15)'
+          },
+          { 
+            id: 'contact', 
+            title: 'Inquiry & Feedback', 
+            icon: FileText, 
+            color: 'healing-emerald',
+            bg: 'from-healing-emerald/10 to-void',
+            border: 'border-healing-emerald/15',
+            glow: 'rgba(16,185,129,0.1)'
+          }
+        ].map((item) => (
+          <button 
+            key={item.id}
+            onClick={() => setActiveForm(item.id as any)}
+            className={`group relative flex flex-col items-center justify-center p-8 md:p-10 bg-gradient-to-br ${item.bg} border ${item.border} rounded-[1.5rem] transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl h-full min-h-[160px] md:min-h-[220px]`}
+          >
+            <div 
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              style={{ background: `radial-gradient(circle at center, ${item.glow} 0%, transparent 70%)` }}
+            />
+            
+            <div className={`p-4 bg-${item.color}/10 rounded-2xl mb-5 group-hover:scale-110 transition-transform duration-500 relative z-10 border border-${item.color}/10`}>
+              <item.icon className={`w-8 h-8 text-${item.color}`} />
+            </div>
+            
+            <h3 className="text-lg md:text-xl font-display italic font-bold relative z-10 leading-tight group-hover:text-white transition-colors">
+              {item.title}
+            </h3>
+
+            <div className={`absolute bottom-4 right-6 flex items-center gap-2 text-${item.color} font-bold text-[8px] uppercase tracking-[0.2em] italic opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0`}>
+              Launch <ChevronRight className="w-3 h-3" />
+            </div>
+          </button>
+        ))}
+      </motion.div>
+      
+      {/* Quick Action Navigation Links */}
+      <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-6 pt-10 border-t border-white/5">
+        {[
+          { id: 'general', title: 'New Member Registry', icon: Users },
+          { id: 'experience', title: 'Attendance Tracker', icon: Calendar },
+          { id: 'finance', title: 'Finance Vouchers', icon: DollarSign },
         ].map((item) => (
           <button 
             key={item.id}
             onClick={() => navigateTo(item.id as Section)}
-            className="flex items-center justify-between p-6 bg-surface border border-surface-border rounded-2xl hover:border-vibrant-purple group transition-all shadow-lg"
+            className="flex items-center gap-3 py-2 px-6 rounded-full bg-void border border-surface-border hover:border-vibrant-purple transition-all group scale-95"
           >
-            <div className="flex items-center gap-3">
-              <item.icon className={`w-5 h-5 text-${item.color}`} />
-              <span className="font-display text-lg italic font-bold tracking-wide">{item.title}</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-text-dim group-hover:text-vibrant-purple transition-transform group-hover:translate-x-1" />
+            <item.icon className="w-4 h-4 text-text-dim group-hover:text-vibrant-purple transition-colors" />
+            <span className="font-display text-sm italic font-bold text-text-dim group-hover:text-white tracking-wide">{item.title}</span>
           </button>
         ))}
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
