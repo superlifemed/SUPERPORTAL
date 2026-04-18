@@ -43,16 +43,26 @@ type Section = 'home' | 'general' | 'experience' | 'finance';
 
 // --- COMPONENTS ---
 
+const ReturnToDashboard = ({ onNavigate }: { onNavigate: () => void }) => (
+  <button 
+    onClick={onNavigate}
+    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-text-dim/60 hover:text-crimson transition-colors mb-6 group"
+  >
+    <ChevronRight className="w-3 h-3 rotate-180 group-hover:-translate-x-1 transition-transform" />
+    Dashboard
+  </button>
+);
+
 const SuccessModal = ({ isOpen, onClose, message }: { isOpen: boolean, onClose: () => void, message: string }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed bottom-10 right-10 z-[100] p-0 pointer-events-none">
+        <div className="fixed bottom-0 md:bottom-10 left-0 right-0 md:left-auto md:right-10 z-[100] p-4 md:p-0 pointer-events-none">
           <motion.div 
             initial={{ y: 30, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 30, opacity: 0, scale: 0.9 }}
-            className="bg-void text-white p-6 rounded-[24px] flex items-center gap-5 shadow-[0_30px_60px_rgba(192,19,42,0.1)] border border-crimson/20 w-[380px] pointer-events-auto relative overflow-hidden"
+            className="bg-void text-white p-6 rounded-[24px] flex items-center gap-5 shadow-[0_30px_60px_rgba(192,19,42,0.1)] border border-crimson/20 w-full md:w-[380px] pointer-events-auto relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-crimson/5 pointer-events-none" />
             <div className="w-12 h-12 bg-crimson rounded-xl flex items-center justify-center shrink-0 shadow-lg relative z-10">
@@ -81,32 +91,28 @@ export default function App() {
   const [activeSection, setActiveSection] = useState<Section>('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [successModal, setSuccessModal] = useState<{isOpen: boolean, message: string}>({ isOpen: false, message: '' });
+  const [generalTab, setGeneralTab] = useState<'newMember' | 'testimony' | 'prayer' | 'contact'>('newMember');
 
   const closeSuccessModal = () => setSuccessModal({ ...successModal, isOpen: false });
   const openSuccessModal = (message: string) => setSuccessModal({ isOpen: true, message });
 
-  const navigateTo = (section: Section) => {
+  const navigateTo = (section: Section, tab?: any) => {
     setActiveSection(section);
+    if (tab && section === 'general') setGeneralTab(tab);
     if (window.innerWidth < 768) setIsSidebarOpen(false);
     window.scrollTo(0, 0);
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-void font-sans">
-      {/* Sidebar Toggle for Desktop */}
+      {/* Slide-out Menu Trigger */}
       <button 
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className={`hidden md:flex fixed top-8 left-8 z-[100] p-3 bg-void/80 backdrop-blur-xl text-white rounded-xl border border-white/5 shadow-2xl transition-all duration-500 hover:border-crimson/30 ${isSidebarOpen ? 'translate-x-[260px]' : 'translate-x-0'}`}
+        onClick={() => setIsSidebarOpen(true)}
+        className={`fixed left-0 top-1/2 -translate-y-1/2 z-[100] transition-all duration-500 ${isSidebarOpen ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}
       >
-        {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-      </button>
-
-      {/* Mobile Menu Trigger */}
-      <button 
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="md:hidden fixed top-6 right-6 z-[100] p-4 bg-crimson text-white rounded-xl shadow-2xl"
-      >
-        {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        <div className="bg-crimson text-white py-6 px-1.5 rounded-r-full shadow-[10px_0_30px_rgba(192,19,42,0.2)] flex items-center justify-center hover:px-2.5 transition-all">
+          <Menu className="w-4 h-4" />
+        </div>
       </button>
 
       {/* Sidebar */}
@@ -117,13 +123,18 @@ export default function App() {
           opacity: isSidebarOpen ? 1 : 0
         }}
         transition={{ type: 'spring', damping: 30, stiffness: 200 }}
-        className="fixed top-0 left-0 h-screen w-[320px] bg-void border-r border-white/5 flex flex-col p-10 z-[90] shadow-2xl"
+        className="fixed top-0 left-0 h-screen w-full max-w-[320px] bg-void border-r border-white/5 flex flex-col p-8 md:p-10 z-[120] shadow-2xl"
       >
-        <div className="mb-14 flex items-center gap-4">
-          <div className="w-10 h-10 bg-crimson rounded-xl shadow-[0_0_20px_rgba(192,19,42,0.3)] flex items-center justify-center">
-            <span className="font-display text-2xl font-black italic text-white leading-none">S</span>
+        <div className="mb-14 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-crimson rounded-xl shadow-[0_0_20px_rgba(192,19,42,0.3)] flex items-center justify-center">
+              <span className="font-display text-2xl font-black italic text-white leading-none">S</span>
+            </div>
+            <h1 className="logo-text text-xl">SuperPortal</h1>
           </div>
-          <h1 className="logo-text text-xl">SuperPortal</h1>
+          <button onClick={() => setIsSidebarOpen(false)} className="text-text-dim hover:text-white transition-colors p-2">
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -154,7 +165,7 @@ export default function App() {
       </motion.aside>
 
       <main className={`flex-1 min-h-screen relative transition-all duration-500 overflow-hidden ${isSidebarOpen ? 'md:pl-[320px]' : 'md:pl-0'}`}>
-        <div className="max-w-[1440px] mx-auto p-10 md:px-24 md:py-24 relative z-10">
+        <div className="max-w-[1440px] mx-auto p-6 md:px-24 md:py-24 relative z-10">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
@@ -164,9 +175,9 @@ export default function App() {
               transition={{ duration: 0.4 }}
             >
               {activeSection === 'home' && <HomeSection navigateTo={navigateTo} openSuccessModal={openSuccessModal} />}
-              {activeSection === 'general' && <GeneralSection openSuccessModal={openSuccessModal} />}
-              {activeSection === 'experience' && <ExperienceSection openSuccessModal={openSuccessModal} />}
-              {activeSection === 'finance' && <FinanceSection openSuccessModal={openSuccessModal} />}
+              {activeSection === 'general' && <GeneralSection openSuccessModal={openSuccessModal} activeTab={generalTab} setActiveTab={setGeneralTab} navigateTo={navigateTo} />}
+              {activeSection === 'experience' && <ExperienceSection openSuccessModal={openSuccessModal} navigateTo={navigateTo} />}
+              {activeSection === 'finance' && <FinanceSection openSuccessModal={openSuccessModal} navigateTo={navigateTo} />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -185,7 +196,7 @@ export default function App() {
 
 // --- SECTION: HOME ---
 
-function HomeSection({ navigateTo }: { navigateTo: (s: Section) => void, openSuccessModal: (m: string) => void, key?: any }) {
+function HomeSection({ navigateTo }: { navigateTo: (s: Section, t?: any) => void, openSuccessModal: (m: string) => void, key?: any }) {
   return (
     <div className="min-h-[80vh] flex flex-col justify-between pt-[10vh] pb-[60px] relative overflow-hidden">
       {/* Background Elements */}
@@ -193,10 +204,11 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section) => void, openSuc
       <div className="grid-bg" />
 
       {/* Hero Section */}
-      <div className="relative z-10 max-w-[640px] text-left">
-        <div className="fade-up-1 flex items-center gap-4 mb-6">
+      <div className="relative z-10 max-w-[720px] text-center mx-auto">
+        <div className="fade-up-1 flex items-center justify-center gap-4 mb-6">
           <span className="w-5 h-[1px] bg-crimson" />
           <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">SuperPortal</span>
+          <span className="w-5 h-[1px] bg-crimson" />
         </div>
         
         <h2 className="home-hero-title fade-up-2 mb-6">
@@ -208,11 +220,34 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section) => void, openSuc
         </p>
       </div>
 
-      {/* Cards Grid */}
-      <div className="fade-up-4 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[800px] mt-16 lg:mt-24">
+      {/* Quick Access Actions */}
+      <div className="fade-up-4 relative z-10 flex flex-row gap-2 md:gap-4 max-w-[800px] mt-12 md:mt-16 text-center mx-auto px-2 md:px-4 w-full">
         <button 
-          onClick={() => navigateTo('general')}
-          className="home-card text-left group"
+          onClick={() => navigateTo('general', 'testimony')}
+          className="flex-1 bg-crimson border border-crimson/50 rounded-[40px] py-4 md:py-8 px-2 md:px-10 group transition-all hover:bg-crimson-dark hover:-translate-y-1 shadow-2xl shadow-crimson/20 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6"
+        >
+          <div className="card-icon-wrap bg-white/10 border-white/20 w-8 h-8 md:w-10 md:h-10 mb-0">
+            <Send className="w-4 h-4 md:w-5 md:h-5 text-white" />
+          </div>
+          <h3 className="text-[11px] sm:text-[14px] md:text-[22px] italic text-white font-bold leading-tight">Testimony</h3>
+        </button>
+
+        <button 
+          onClick={() => navigateTo('general', 'prayer')}
+          className="flex-1 bg-crimson border border-crimson/50 rounded-[40px] py-4 md:py-8 px-2 md:px-10 group transition-all hover:bg-crimson-dark hover:-translate-y-1 shadow-2xl shadow-crimson/20 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6"
+        >
+          <div className="card-icon-wrap bg-white/10 border-white/20 w-8 h-8 md:w-10 md:h-10 mb-0">
+            <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
+          </div>
+          <h3 className="text-[11px] sm:text-[14px] md:text-[22px] italic text-white font-bold leading-tight">Prayer</h3>
+        </button>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="fade-up-4 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 max-w-[800px] mt-6 md:mt-8 lg:mt-10 mx-auto">
+        <button 
+          onClick={() => navigateTo('general', 'newMember')}
+          className="home-card text-left group min-h-[140px]"
         >
           <div className="card-icon-wrap">
             <FileText className="w-4 h-4 text-text-dim group-hover:text-white transition-colors" />
@@ -260,7 +295,7 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section) => void, openSuc
       </div>
 
       {/* Bottom Footer Section */}
-      <div className="fade-up-5 relative z-10 mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-4">
+      <div className="fade-up-5 relative z-10 mt-12 md:mt-16 pt-8 border-t border-white/5 flex flex-wrap justify-center gap-3">
         <button onClick={() => navigateTo('general')} className="quick-link group">
           New Member <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
         </button>
@@ -277,9 +312,13 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section) => void, openSuc
 
 // --- SECTION: GENERAL ---
 
-function GeneralSection({ openSuccessModal }: { openSuccessModal: (m: string) => void, key?: any }) {
-  const [activeTab, setActiveTab] = useState<'newMember' | 'testimony' | 'prayer' | 'contact'>('newMember');
-
+function GeneralSection({ openSuccessModal, activeTab, setActiveTab, navigateTo }: { 
+  openSuccessModal: (m: string) => void, 
+  activeTab: 'newMember' | 'testimony' | 'prayer' | 'contact',
+  setActiveTab: (t: any) => void,
+  navigateTo: (s: any) => void,
+  key?: any 
+}) {
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -291,6 +330,7 @@ function GeneralSection({ openSuccessModal }: { openSuccessModal: (m: string) =>
       <div className="grid-bg" />
 
       <div className="relative z-10">
+        <ReturnToDashboard onNavigate={() => navigateTo('home')} />
         <div className="fade-up-1 flex items-center gap-4 mb-6">
           <span className="w-5 h-[1px] bg-crimson" />
           <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Portal / General</span>
@@ -322,7 +362,7 @@ function GeneralSection({ openSuccessModal }: { openSuccessModal: (m: string) =>
 
 // --- SECTION: EXPERIENCE ---
 
-function ExperienceSection({ openSuccessModal }: { openSuccessModal: (m: string) => void, key?: any }) {
+function ExperienceSection({ openSuccessModal, navigateTo }: { openSuccessModal: (m: string) => void, navigateTo: (s: any) => void, key?: any }) {
   const [activeTab, setActiveTab] = useState<'attendance' | 'devotional'>('attendance');
 
   return (
@@ -336,6 +376,7 @@ function ExperienceSection({ openSuccessModal }: { openSuccessModal: (m: string)
       <div className="grid-bg" />
 
       <div className="relative z-10">
+        <ReturnToDashboard onNavigate={() => navigateTo('home')} />
         <div className="fade-up-1 flex items-center gap-4 mb-6">
           <span className="w-5 h-[1px] bg-crimson" />
           <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Portal / Experience</span>
@@ -382,7 +423,7 @@ function ExperienceSection({ openSuccessModal }: { openSuccessModal: (m: string)
 
 // --- SECTION: FINANCE ---
 
-function FinanceSection({ openSuccessModal }: { openSuccessModal: (m: string) => void, key?: any }) {
+function FinanceSection({ openSuccessModal, navigateTo }: { openSuccessModal: (m: string) => void, navigateTo: (s: any) => void, key?: any }) {
   const [activeTab, setActiveTab] = useState<'reimbursement' | 'tithe'>('reimbursement');
 
   return (
@@ -396,6 +437,7 @@ function FinanceSection({ openSuccessModal }: { openSuccessModal: (m: string) =>
       <div className="grid-bg" />
 
       <div className="relative z-10">
+        <ReturnToDashboard onNavigate={() => navigateTo('home')} />
         <div className="fade-up-1 flex items-center gap-4 mb-6">
           <span className="w-5 h-[1px] bg-crimson" />
           <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Portal / Finance</span>
@@ -424,19 +466,25 @@ function FinanceSection({ openSuccessModal }: { openSuccessModal: (m: string) =>
 // --- FORM HANDLER UTILITY ---
 
 async function submitForm(url: string, data: any) {
-  const response = await fetch(url, {
-    method: 'POST',
-    mode: 'no-cors', // Apps Script web apps often need no-cors or JSONP, but 'no-cors' wont give us the response body. 
-    // Usually for Apps Script we might use 'cors' if defined in the script.
-    // However, the instructions say "fetch with method POST and Content-Type application/json"
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data)
+  const params = new URLSearchParams();
+  
+  Object.keys(data).forEach(key => {
+    const value = data[key];
+    if (Array.isArray(value)) {
+      params.set(key, value.join(', '));
+    } else {
+      params.set(key, value);
+    }
   });
-  // Since we're using no-cors for a placeholder URL, this will resolve but might not have data.
-  // In a real scenario, the Apps Script should handle CORS or return a status.
-  return response;
+
+  return await fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: params.toString()
+  });
 }
 
 // --- INDIVIDUAL FORMS ---
@@ -467,9 +515,14 @@ function NewMemberForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     }
 
     try {
-      await submitForm(APPS_SCRIPT_URLS.newMember, { ...formData, formType: "newMember" });
+      const submissionData = {
+        ...formData,
+        formType: "newMember",
+        source: formData.source === 'Other' ? formData.sourceOther : formData.source
+      };
+      await submitForm(APPS_SCRIPT_URLS.newMember, submissionData);
       onSuccess();
-      setFormData({ firstName: '', lastNameInitial: '', email: '', phone: '', source: '', visitStatus: '' });
+      setFormData({ firstName: '', lastNameInitial: '', email: '', phone: '', source: '', sourceOther: '', visitStatus: '' });
     } catch (err) {
       setError('An error occurred. Please try again.');
     } finally {
@@ -605,15 +658,6 @@ function TestimonyForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
         <textarea required rows={5} placeholder="Describe your experience..." value={formData.testimony} onChange={e => setFormData({...formData, testimony: e.target.value})} className="form-input min-h-[160px] resize-none" />
       </div>
 
-      <div className="flex items-center justify-between gap-4 p-5 bg-void border border-white/5 rounded-2xl">
-        <label className="form-label mb-0">Public Authorization</label>
-        <div className="flex gap-2">
-          {['Yes', 'No'].map(opt => (
-            <button key={opt} type="button" onClick={() => setFormData({...formData, public: opt})} className={`tab-pill ${formData.public === opt ? 'active' : ''}`}>{opt}</button>
-          ))}
-        </div>
-      </div>
-
       <button disabled={loading} type="submit" className="btn-primary w-full">
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> Share Testimony</>}
       </button>
@@ -652,14 +696,6 @@ function PrayerForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
       <div>
         <label className="form-label">Prayer Request *</label>
         <textarea required rows={5} placeholder="Describe your request..." value={formData.request} onChange={e => setFormData({...formData, request: e.target.value})} className="form-input min-h-[160px] resize-none" />
-      </div>
-      <div className="flex items-center justify-between gap-4 p-5 bg-void border border-white/5 rounded-2xl">
-        <label className="form-label mb-0">Confidentiality *</label>
-        <div className="flex gap-2">
-          {['Yes', 'No'].map(opt => (
-            <button key={opt} type="button" onClick={() => setFormData({...formData, private: opt})} className={`tab-pill ${formData.private === opt ? 'active' : ''}`}>{opt === 'Yes' ? 'Private' : 'Public'}</button>
-          ))}
-        </div>
       </div>
       <button disabled={loading} type="submit" className="btn-primary w-full">
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> Submit Request</>}
