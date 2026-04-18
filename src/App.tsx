@@ -18,11 +18,11 @@ import {
 
 // --- TECHNICAL CONSTANTS ---
 const APPS_SCRIPT_URLS = {
-  newMember: "PLACEHOLDER_NEW_MEMBER_URL",
-  testimony: "PLACEHOLDER_TESTIMONY_URL",
+  newMember: "https://script.google.com/macros/s/AKfycbzUhV7fdCpyMPyEIACM6AL4UdyRG4U8QRsPKEW0hMVelB1vkHUHRijqmA02tjrCGUHR/exec",
+  testimony: "https://script.google.com/macros/s/AKfycbzUhV7fdCpyMPyEIACM6AL4UdyRG4U8QRsPKEW0hMVelB1vkHUHRijqmA02tjrCGUHR/exec",
   prayer: "PLACEHOLDER_PRAYER_URL",
   contact: "PLACEHOLDER_CONTACT_URL",
-  attendance: "PLACEHOLDER_ATTENDANCE_URL",
+  attendance: "https://script.google.com/macros/s/AKfycbzUhV7fdCpyMPyEIACM6AL4UdyRG4U8QRsPKEW0hMVelB1vkHUHRijqmA02tjrCGUHR/exec",
   reimbursement: "PLACEHOLDER_REIMBURSEMENT_URL",
   titheReceipt: "PLACEHOLDER_TITHE_RECEIPT_URL"
 };
@@ -257,8 +257,8 @@ function HomeSection({ navigateTo, openSuccessModal }: { navigateTo: (s: Section
       className="space-y-16 md:space-y-24 py-10"
     >
       <motion.div variants={itemVariants} className="text-center max-w-4xl mx-auto">
-        <h2 className="text-5xl md:text-8xl font-display mb-6 md:mb-10 leading-[0.9] italic bg-gradient-to-b from-white via-white to-white/20 bg-clip-text text-transparent">
-          SuperPortal
+        <h2 className="text-6xl md:text-[9rem] lg:text-[10rem] font-display mb-6 md:mb-10 leading-[0.9] bg-gradient-to-b from-white via-white to-white/20 bg-clip-text text-transparent">
+          Super<span className="italic">Portal</span>
         </h2>
         <div className="flex items-center justify-center gap-4 mb-6">
           <div className="h-px bg-brand-red/30 flex-1 max-w-[60px]" />
@@ -305,24 +305,29 @@ function HomeSection({ navigateTo, openSuccessModal }: { navigateTo: (s: Section
           <button 
             key={item.id}
             onClick={() => setActiveForm(item.id as any)}
-            className={`group relative flex flex-col items-center justify-center p-8 md:p-10 bg-gradient-to-br ${item.bg} border ${item.border} rounded-[1.5rem] transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl h-full min-h-[160px] md:min-h-[220px]`}
+            className={`group relative flex flex-col items-center justify-center p-8 md:p-10 bg-void border ${item.border} rounded-[2rem] transition-all duration-700 hover:-translate-y-3 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] h-full min-h-[180px] md:min-h-[240px]`}
           >
             <div 
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-              style={{ background: `radial-gradient(circle at center, ${item.glow} 0%, transparent 70%)` }}
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none bg-gradient-to-br from-white/[0.03] to-transparent z-0"
+            />
+            <div 
+              className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity duration-700 pointer-events-none"
+              style={{ background: `radial-gradient(circle at center, ${item.glow} 0%, transparent 80%)` }}
             />
             
-            <div className={`p-4 bg-${item.color}/10 rounded-2xl mb-5 group-hover:scale-110 transition-transform duration-500 relative z-10 border border-${item.color}/10`}>
-              <item.icon className={`w-8 h-8 text-${item.color}`} />
+            <div className={`p-4 bg-${item.color}/5 rounded-full mb-6 group-hover:scale-110 transition-transform duration-700 relative z-10 border border-${item.color}/20 group-hover:border-${item.color}/40 shadow-[0_0_30px_rgba(0,0,0,0.2)]`}>
+              <item.icon className={`w-9 h-9 text-${item.color} filter drop-shadow-[0_0_8px_rgba(var(--color-${item.color}),0.5)]`} />
             </div>
             
-            <h3 className="text-lg md:text-xl font-display italic font-bold relative z-10 leading-tight group-hover:text-white transition-colors">
+            <h3 className="text-xl md:text-3xl font-display italic font-bold relative z-10 leading-tight group-hover:text-white transition-all tracking-tight">
               {item.title}
             </h3>
 
-            <div className={`absolute bottom-4 right-6 flex items-center gap-2 text-${item.color} font-bold text-[8px] uppercase tracking-[0.2em] italic opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0`}>
-              Launch <ChevronRight className="w-3 h-3" />
+            <div className={`absolute bottom-6 right-8 flex items-center gap-2 text-${item.color} font-bold text-[9px] uppercase tracking-[0.4em] italic opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0`}>
+              Open Portal <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
             </div>
+            
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           </button>
         ))}
       </motion.div>
@@ -502,7 +507,7 @@ function NewMemberForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     }
 
     try {
-      await submitForm(APPS_SCRIPT_URLS.newMember, formData);
+      await submitForm(APPS_SCRIPT_URLS.newMember, { ...formData, formType: "newMember" });
       onSuccess();
       setFormData({ firstName: '', lastNameInitial: '', email: '', phone: '', source: '', visitStatus: '' });
     } catch (err) {
@@ -595,7 +600,7 @@ function TestimonyForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await submitForm(APPS_SCRIPT_URLS.testimony, formData);
+    await submitForm(APPS_SCRIPT_URLS.testimony, { ...formData, formType: "testimony" });
     onSuccess();
     setFormData({ name: '', email: '', testimony: '', public: 'No', delivery: 'Read in church' });
     setLoading(false);
@@ -761,7 +766,7 @@ function AttendanceForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await submitForm(APPS_SCRIPT_URLS.attendance, formData);
+    await submitForm(APPS_SCRIPT_URLS.attendance, { ...formData, formType: "attendance" });
     onSuccess();
     setFormData({ eventType: '', customEvent: '', date: new Date().toISOString().split('T')[0], total: '', firstTimers: '', notes: '' });
     setLoading(false);
