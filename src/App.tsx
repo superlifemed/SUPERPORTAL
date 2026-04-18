@@ -466,14 +466,14 @@ function FinanceSection({ openSuccessModal, navigateTo }: { openSuccessModal: (m
 // --- FORM HANDLER UTILITY ---
 
 async function submitForm(url: string, data: any) {
-  const params = new URLSearchParams();
+  const cleanData: any = {};
   
   Object.keys(data).forEach(key => {
     const value = data[key];
     if (Array.isArray(value)) {
-      params.set(key, value.join(', '));
+      cleanData[key] = value;
     } else {
-      params.set(key, value);
+      cleanData[key] = value ?? "";
     }
   });
 
@@ -481,9 +481,9 @@ async function submitForm(url: string, data: any) {
     method: 'POST',
     mode: 'no-cors',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'text/plain',
     },
-    body: params.toString()
+    body: JSON.stringify(cleanData)
   });
 }
 
