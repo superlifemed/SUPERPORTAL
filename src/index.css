@@ -62,7 +62,7 @@
   }
 
   .form-input {
-    @apply w-full bg-surface/30 border border-surface-border rounded-xl p-3.5 md:p-4 text-sm text-white focus:outline-none focus:border-crimson focus:ring-1 focus:ring-crimson/20 transition-all duration-300 placeholder:text-text-dim/20 italic font-medium;
+    @apply w-full bg-surface/30 border border-surface-border rounded-xl p-3.5 md:p-4 text-[16px] md:text-sm text-white focus:outline-none focus:border-crimson focus:ring-1 focus:ring-crimson/20 transition-all duration-300 placeholder:text-text-dim/20 italic font-medium;
   }
 
   .form-input:invalid:not(:placeholder-shown) {
