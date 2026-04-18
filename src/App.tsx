@@ -412,8 +412,8 @@ function FinanceSection({ openSuccessModal }: { openSuccessModal: (m: string) =>
 
         <AnimatePresence mode="wait">
           <div className="fade-up-4">
-            {activeTab === 'reimbursement' && <ReimbursementForm key="reimb" onSuccess={() => openSuccessModal('Your reimbursement request has been submitted to Finance.')} />}
-            {activeTab === 'tithe' && <TitheReceiptForm key="tithe" onSuccess={() => openSuccessModal('Your request for a tithe receipt has been received.')} />}
+            {activeTab === 'reimbursement' && <ReimbursementForm key="reimb" onSuccess={() => openSuccessModal('Your request has been submitted to Finance.')} />}
+            {activeTab === 'tithe' && <TitheReceiptForm key="tithe" onSuccess={() => openSuccessModal('Your request has been submitted to Finance.')} />}
           </div>
         </AnimatePresence>
       </div>
@@ -486,16 +486,16 @@ function NewMemberForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="form-label">First Name</label>
+          <label className="form-label">First Name *</label>
           <input required placeholder="Enter first name" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="form-input" />
         </div>
         <div>
-          <label className="form-label">Last Initial</label>
+          <label className="form-label">Last Initial *</label>
           <input required maxLength={1} placeholder="X" value={formData.lastNameInitial} onChange={e => setFormData({...formData, lastNameInitial: e.target.value.toUpperCase()})} className="form-input" />
         </div>
       </div>
       <div>
-        <label className="form-label">Email Address</label>
+        <label className="form-label">Email Address *</label>
         <input required type="email" placeholder="email@address.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="form-input" />
       </div>
       <div>
@@ -507,7 +507,7 @@ function NewMemberForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
       </div>
 
       <div className="space-y-4">
-        <label className="form-label">Engagement Status</label>
+        <label className="form-label">Engagement Status *</label>
         <div className="flex flex-col gap-2">
           {[
             'I am just visiting',
@@ -528,7 +528,7 @@ function NewMemberForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
 
       <div className="space-y-4">
         <div>
-          <label className="form-label">Please tell us how you heard about us</label>
+          <label className="form-label">Please tell us how you heard about us *</label>
           <select required value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="form-input">
             <option value="">Select discovery method</option>
             <option>Friend or Family</option>
@@ -540,7 +540,7 @@ function NewMemberForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
         
         {formData.source === 'Other' && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-            <label className="form-label">Specify Source</label>
+            <label className="form-label">Specify Source *</label>
             <input required placeholder="How did you find us?" value={formData.sourceOther} onChange={e => setFormData({...formData, sourceOther: e.target.value})} className="form-input" />
           </motion.div>
         )}
@@ -572,17 +572,17 @@ function TestimonyForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     <motion.form initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleSubmit} className="card-surface space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="form-label">Full Name</label>
+          <label className="form-label">Full Name *</label>
           <input required placeholder="Enter name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="form-input" />
         </div>
         <div>
-          <label className="form-label">Contact Email</label>
+          <label className="form-label">Contact Email *</label>
           <input required type="email" placeholder="email@address.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="form-input" />
         </div>
       </div>
       
       <div className="space-y-4">
-        <label className="form-label">Delivery Preference</label>
+        <label className="form-label">Delivery Preference *</label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             { id: 'Share live', label: 'Share it live' },
@@ -601,7 +601,7 @@ function TestimonyForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
       </div>
 
       <div>
-        <label className="form-label">Your Testimony</label>
+        <label className="form-label">Your Testimony *</label>
         <textarea required rows={5} placeholder="Describe your experience..." value={formData.testimony} onChange={e => setFormData({...formData, testimony: e.target.value})} className="form-input min-h-[160px] resize-none" />
       </div>
 
@@ -650,11 +650,11 @@ function PrayerForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
         </div>
       </div>
       <div>
-        <label className="form-label">Prayer Request</label>
+        <label className="form-label">Prayer Request *</label>
         <textarea required rows={5} placeholder="Describe your request..." value={formData.request} onChange={e => setFormData({...formData, request: e.target.value})} className="form-input min-h-[160px] resize-none" />
       </div>
       <div className="flex items-center justify-between gap-4 p-5 bg-void border border-white/5 rounded-2xl">
-        <label className="form-label mb-0">Confidentiality</label>
+        <label className="form-label mb-0">Confidentiality *</label>
         <div className="flex gap-2">
           {['Yes', 'No'].map(opt => (
             <button key={opt} type="button" onClick={() => setFormData({...formData, private: opt})} className={`tab-pill ${formData.private === opt ? 'active' : ''}`}>{opt === 'Yes' ? 'Private' : 'Public'}</button>
@@ -697,7 +697,7 @@ function ContactForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
         </div>
       </div>
       <div>
-        <label className="form-label">Please select your subject</label>
+        <label className="form-label">Please select your subject *</label>
         <select required value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} className="form-input">
           <option value="">Select subject</option>
           <option>General Inquiry</option>
@@ -707,7 +707,7 @@ function ContactForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
         </select>
       </div>
       <div>
-        <label className="form-label">Inquiry Message</label>
+        <label className="form-label">Inquiry Message *</label>
         <textarea required rows={5} placeholder="How can we assist?" value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} className="form-input min-h-[160px] resize-none" />
       </div>
       <button disabled={loading} type="submit" className="btn-primary w-full">
@@ -744,7 +744,7 @@ function AttendanceForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="form-label">Event Assignment</label>
+          <label className="form-label">Event Assignment *</label>
           <select required value={formData.eventType} onChange={e => setFormData({...formData, eventType: e.target.value})} className="form-input">
             <option value="">Select service type</option>
             <option>Sunday Service</option>
@@ -755,22 +755,22 @@ function AttendanceForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
         </div>
         {formData.eventType === 'Other' && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-            <label className="form-label">Event Specification</label>
+            <label className="form-label">Event Specification *</label>
             <input required value={formData.customEvent} onChange={e => setFormData({...formData, customEvent: e.target.value})} className="form-input" />
           </motion.div>
         )}
         <div>
-          <label className="form-label">Mission Date</label>
+          <label className="form-label">Mission Date *</label>
           <input required type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="form-input" />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5">
         <div>
-          <label className="form-label">Total Attendance</label>
+          <label className="form-label">Total Attendance *</label>
           <input required type="number" min="0" placeholder="0" value={formData.total} onChange={e => setFormData({...formData, total: e.target.value})} className="form-input" />
         </div>
         <div>
-          <label className="form-label">First-time Visitors</label>
+          <label className="form-label">First-time Visitors *</label>
           <input required type="number" min="0" placeholder="0" value={formData.firstTimers} onChange={e => setFormData({...formData, firstTimers: e.target.value})} className="form-input" />
         </div>
       </div>
@@ -833,19 +833,19 @@ function ReimbursementForm({ onSuccess }: { onSuccess: () => void, key?: any }) 
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="form-label">Submission Date</label>
+            <label className="form-label">Submission Date *</label>
             <input required type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="form-input" />
           </div>
           <div>
-            <label className="form-label">Accounting Period</label>
+            <label className="form-label">Accounting Period *</label>
             <input required placeholder="e.g. Q2 2026" value={formData.accountingPeriod} onChange={e => setFormData({...formData, accountingPeriod: e.target.value})} className="form-input" />
           </div>
           <div className="md:col-span-2">
-            <label className="form-label">Budget Allocation / Cost Center</label>
+            <label className="form-label">Budget Allocation / Cost Center *</label>
             <input required placeholder="e.g. Media Infrastructure Maintenance" value={formData.budgetCenter} onChange={e => setFormData({...formData, budgetCenter: e.target.value})} className="form-input" />
           </div>
           <div className="md:col-span-2">
-            <label className="form-label">Transaction Method</label>
+            <label className="form-label">Transaction Method *</label>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
               {['Cash', 'Cheque', 'E-Transfer', 'Direct Deposit', 'Other'].map(type => (
                 <button 
@@ -874,7 +874,7 @@ function ReimbursementForm({ onSuccess }: { onSuccess: () => void, key?: any }) 
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <label className="form-label">Legal Name of Recipient</label>
+            <label className="form-label">Legal Name of Recipient *</label>
             <input required placeholder="Full legal name" value={formData.payeeName} onChange={e => setFormData({...formData, payeeName: e.target.value})} className="form-input" />
           </div>
           <div>
@@ -882,15 +882,15 @@ function ReimbursementForm({ onSuccess }: { onSuccess: () => void, key?: any }) 
             <input placeholder="Organization (Optional)" value={formData.payeeOrg} onChange={e => setFormData({...formData, payeeOrg: e.target.value})} className="form-input" />
           </div>
           <div>
-            <label className="form-label">Mobile Contact</label>
+            <label className="form-label">Mobile Contact *</label>
             <input required type="tel" placeholder="+1 (000) 000-0000" value={formData.payeePhone} onChange={e => setFormData({...formData, payeePhone: e.target.value})} className="form-input" />
           </div>
           <div className="md:col-span-2">
-            <label className="form-label">Communication Access (Email)</label>
+            <label className="form-label">Communication Access (Email) *</label>
             <input required type="email" placeholder="email@address.com" value={formData.payeeEmail} onChange={e => setFormData({...formData, payeeEmail: e.target.value})} className="form-input" />
           </div>
           <div className="md:col-span-2">
-            <label className="form-label">Correspondence Address</label>
+            <label className="form-label">Correspondence Address *</label>
             <textarea required rows={2} placeholder="Full mailing address" value={formData.payeeAddress} onChange={e => setFormData({...formData, payeeAddress: e.target.value})} className="form-input resize-none" />
           </div>
         </div>
@@ -906,19 +906,19 @@ function ReimbursementForm({ onSuccess }: { onSuccess: () => void, key?: any }) 
         </div>
         <div className="grid grid-cols-1 gap-8">
           <div>
-            <label className="form-label">Requested Amount (CAD)</label>
+            <label className="form-label">Requested Amount (CAD) *</label>
             <div className="relative">
               <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-dim/60 font-bold">$</span>
               <input required type="number" step="0.01" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="form-input pl-10 text-xl font-display" placeholder="0.00" />
             </div>
           </div>
           <div>
-            <label className="form-label">Statement of Purpose</label>
+            <label className="form-label">Statement of Purpose *</label>
             <textarea required rows={3} placeholder="Detailed justification of expense..." value={formData.purpose} onChange={e => setFormData({...formData, purpose: e.target.value})} className="form-input resize-none" />
           </div>
           
           <div>
-            <label className="form-label">Operational Department</label>
+            <label className="form-label">Operational Department *</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-void p-5 rounded-2xl border border-white/5">
               {['Administration', 'Worship/Music', 'Outreach/Evangelism', 'Youth Ministry', 'Welfare/Benevolence', 'Media/Technical', 'Building Maintenance', 'Events/Conferences', 'Other'].map(min => (
                 <label key={min} className="flex items-center gap-3 cursor-pointer group">
@@ -938,7 +938,7 @@ function ReimbursementForm({ onSuccess }: { onSuccess: () => void, key?: any }) 
           </div>
 
           <div>
-            <label className="form-label">Expense Classification</label>
+            <label className="form-label">Expense Classification *</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-void p-5 rounded-2xl border border-white/5">
               {['Supplies', 'Honorarium', 'Utilities', 'Equipment', 'Transportation', 'Program Expense', 'Other'].map(cat => (
                 <label key={cat} className="flex items-center gap-3 cursor-pointer group">
@@ -965,10 +965,10 @@ function ReimbursementForm({ onSuccess }: { onSuccess: () => void, key?: any }) 
           <div className="w-8 h-8 rounded-lg bg-crimson/10 border border-crimson/20 flex items-center justify-center">
             <span className="font-display font-bold italic text-crimson text-xs">04</span>
           </div>
-          <h4 className="text-xl font-display font-bold italic border-b border-white/5 flex-1 pb-2">Verification Logs</h4>
+          <h4 className="text-xl font-display font-bold italic border-b border-white/5 flex-1 pb-2">Verification</h4>
         </div>
         <div className="space-y-6">
-          <p className="text-[12px] text-text-dim italic font-medium leading-relaxed">Check all verified payloads. Native documentation must be submitted to the Treasury.</p>
+          <p className="text-[12px] text-text-dim italic font-medium leading-relaxed">Please select all supporting documents being provided.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {['Invoice', 'Receipt', 'Contract/Agreement', 'Event Budget Approval', 'Ministry Approval', 'Other'].map(docType => (
               <label key={docType} className="flex items-center gap-3 cursor-pointer group">
@@ -987,8 +987,8 @@ function ReimbursementForm({ onSuccess }: { onSuccess: () => void, key?: any }) 
           </div>
 
           <div className="p-6 bg-crimson/5 border border-crimson/10 rounded-[20px] text-center">
-            <p className="text-[11px] text-crimson font-bold uppercase tracking-[0.15em] leading-relaxed italic">
-              * Verification: Original transaction logs required for audit processing.
+            <p className="text-[11px] text-crimson font-bold uppercase tracking-[0.1em] leading-relaxed italic">
+              * Please be reminded that original transaction receipts may be required for processing.
             </p>
           </div>
         </div>
@@ -1028,20 +1028,20 @@ function TitheReceiptForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="form-label">Full Name</label>
+          <label className="form-label">Full Name *</label>
           <input required placeholder="Enter legal name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="form-input" />
         </div>
         <div>
-          <label className="form-label">Contact Mobile</label>
+          <label className="form-label">Contact Mobile *</label>
           <input required type="tel" placeholder="+1 (000) 000-0000" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="form-input" />
         </div>
       </div>
       <div>
-        <label className="form-label">Digital Address (Email)</label>
+        <label className="form-label">Digital Address (Email) *</label>
         <input required type="email" placeholder="email@address.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="form-input" />
       </div>
       <div>
-        <label className="form-label">Fiscal Year</label>
+        <label className="form-label">Fiscal Year *</label>
         <select required value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})} className="form-input">
           <option>{currentYear}</option>
           <option>{currentYear - 1}</option>
@@ -1049,7 +1049,7 @@ function TitheReceiptForm({ onSuccess }: { onSuccess: () => void, key?: any }) {
         </select>
       </div>
       <div className="space-y-4">
-        <label className="form-label">Logistics Method</label>
+        <label className="form-label">Logistics Method *</label>
         <div className="flex gap-3">
           {['Email', 'In-person Pickup'].map(method => (
             <label key={method} className="flex-1 flex items-center gap-3 cursor-pointer group p-4 rounded-xl border border-white/5 bg-void hover:border-white/10 transition-all">
