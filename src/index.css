@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cormorant Garamond", serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-velvet: #1A0A35;
+  --color-regal: #2D0B5A;
+  --color-void: #0D041A;
+  --color-vibrant-purple: #8B5CF6;
+  --color-brand-red: #F43F5E;
+  --color-brand-red-dark: #BE123C;
+  --color-ghost-white: #FFFFFF;
+  --color-surface: #1E0C3E;
+  --color-surface-border: #311862;
+  --color-text-dim: #94A3B8;
+}
+
+@layer base {
+  body {
+    @apply bg-void text-ghost-white font-sans antialiased overflow-x-hidden text-sm;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-tight italic;
+  }
+}
+
+@layer components {
+  .logo-text {
+    @apply font-display font-bold italic uppercase tracking-[0.15em];
+    background: linear-gradient(135deg, #FFFFFF 0%, #F43F5E 50%, #8B5CF6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.2));
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-text-dim hover:text-white hover:bg-white/5 italic text-[13px];
+  }
+  
+  .sidebar-link.active {
+    @apply text-white bg-vibrant-purple shadow-[0_4px_15px_rgba(139,92,246,0.3)] italic scale-[1.01];
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-br from-brand-red to-brand-red-dark text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-brand-red/20 active:scale-95 flex items-center justify-center gap-2 italic text-sm;
+  }
+
+  .card-surface {
+    @apply bg-surface border border-surface-border rounded-[1.5rem] p-6 md:p-8 transition-all duration-500 shadow-xl hover:border-vibrant-purple/30 hover:shadow-vibrant-purple/5 hover:-translate-y-1;
+  }
+
+  .form-input {
+    @apply w-full bg-void border border-surface-border rounded-xl p-3.5 text-sm text-white focus:outline-none focus:border-vibrant-purple focus:ring-1 focus:ring-vibrant-purple/20 transition-all duration-300 placeholder:text-text-dim/30 italic;
+  }
+
+  .form-input:invalid:not(:placeholder-shown) {
+    @apply border-brand-red/50;
+  }
+
+  .form-label {
+    @apply block text-[10px] font-black uppercase tracking-[0.15em] text-text-dim/60 mb-2 ml-2 italic;
+  }
+
+  .tab-pill {
+    @apply px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300 text-text-dim bg-surface border border-surface-border hover:text-white hover:border-vibrant-purple/50 italic;
+  }
+
+  .tab-pill.active {
+    @apply bg-vibrant-purple text-white shadow-md border-vibrant-purple;
+  }
+
+  .solid-glow {
+    @apply absolute w-[400px] h-[400px] pointer-events-none blur-[100px] rounded-full opacity-20;
+    background: radial-gradient(circle, var(--color-vibrant-purple) 0%, transparent 70%);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-void;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-border rounded-full hover:bg-vibrant-purple transition-all border-4 border-solid border-void;
+  }
+}
+
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.01;
+  z-index: 999;
+}
+
+.page-transition-enter {
+  opacity: 0;
+}
+.page-transition-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-out;
+}
