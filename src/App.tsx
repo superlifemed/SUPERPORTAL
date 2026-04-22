@@ -264,7 +264,7 @@ const DashboardLayout = ({ children, isProtected = false, isSidebarOpen, setIsSi
 
         <div className="pt-8 border-t border-white/5 mt-auto">
           {token === SECRET_TOKEN ? (
-            <button onClick={() => navigate('/login')} className="sidebar-link w-full opacity-40 hover:opacity-100 transition-opacity">
+            <button onClick={() => navigate('/')} className="sidebar-link w-full opacity-40 hover:opacity-100 transition-opacity">
               <LogOut className="w-4 h-4" />
               <span>End Session</span>
             </button>
