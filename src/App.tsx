@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Home, 
+  BrowserRouter, 
+  Routes, 
+  Route, 
+  useNavigate, 
+  useLocation,
+  Link,
+  Navigate,
+  useSearchParams
+} from 'react-router-dom';
+import { 
+  Home as HomeIcon, 
   FileText, 
-  Users, 
+  Users as UsersIcon, 
   DollarSign, 
   Menu, 
   X, 
@@ -13,10 +23,13 @@ import {
   Calendar,
   BookOpen,
   Send,
-  Loader2
+  Loader2,
+  Lock
 } from 'lucide-react';
 
 // --- TECHNICAL CONSTANTS ---
+const AUTH_PASSWORD = "0000";
+const SECRET_TOKEN = "sl-internal-access-2026";
 const APPS_SCRIPT_URLS = {
   newMember: "https://script.google.com/macros/s/AKfycbzUhV7fdCpyMPyEIACM6AL4UdyRG4U8QRsPKEW0hMVelB1vkHUHRijqmA02tjrCGUHR/exec",
   testimony: "https://script.google.com/macros/s/AKfycbzUhV7fdCpyMPyEIACM6AL4UdyRG4U8QRsPKEW0hMVelB1vkHUHRijqmA02tjrCGUHR/exec",
@@ -35,7 +48,7 @@ const EMAILS = {
   leadership: "slcchurchleadership@gmail.com"
 };
 
-const DEVOTIONAL_URL = "PLACEHOLDER_DEVOTIONAL_URL";
+const DEVOTIONAL_URL = "https://pastoriykeglobal.org/devotionals/";
 const DEVOTIONAL_TITLE = "Today's Devotional";
 const DEVOTIONAL_DESCRIPTION = "Click below to access today's devotional resource.";
 
@@ -43,15 +56,76 @@ type Section = 'home' | 'general' | 'experience' | 'finance';
 
 // --- COMPONENTS ---
 
-const ReturnToDashboard = ({ onNavigate }: { onNavigate: () => void }) => (
-  <button 
-    onClick={onNavigate}
-    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-text-dim/60 hover:text-crimson transition-colors mb-6 group"
-  >
-    <ChevronRight className="w-3 h-3 rotate-180 group-hover:-translate-x-1 transition-transform" />
-    Dashboard
-  </button>
-);
+const ReturnToDashboard = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  
+  return (
+    <button 
+      onClick={() => navigate(`/${token ? `?token=${token}` : ''}`)}
+      className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-text-dim/60 hover:text-crimson transition-colors mb-6 group"
+    >
+      <ChevronRight className="w-3 h-3 rotate-180 group-hover:-translate-x-1 transition-transform" />
+      Dashboard
+    </button>
+  );
+};
+
+const LoginPage = () => {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === AUTH_PASSWORD) {
+      navigate(`/?token=${SECRET_TOKEN}`);
+    } else {
+      setError(true);
+      setPassword("");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-void flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="noise-overlay" />
+      <div className="grid-bg" />
+      <div className="geo-bg" />
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="card-surface w-full max-w-[340px] relative z-10 p-8 text-center"
+      >
+        <div className="w-12 h-12 bg-crimson rounded-xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(192,19,42,0.4)]">
+          <Lock className="w-5 h-5 text-white" />
+        </div>
+        <h2 className="section-title text-2xl mb-2 italic">Security<span className="italic"> Check</span></h2>
+        <p className="text-text-dim text-[11px] italic mb-8">Enter authorization code for internal portal.</p>
+        
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input 
+            type="password" 
+            placeholder="••••" 
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError(false);
+            }}
+            className={`form-input text-center text-xl tracking-[0.5em] h-12 ${error ? 'border-brand-red animate-shake' : ''}`}
+            required
+            autoFocus
+          />
+          {error && <p className="text-crimson text-[9px] uppercase font-black tracking-widest animate-pulse italic">Invalid Access Code</p>}
+          <button type="submit" className="btn-primary w-full py-3.5 text-[10px] tracking-[0.3em] font-black">
+            Authorize Entry
+          </button>
+        </form>
+      </motion.div>
+    </div>
+  );
+};
 
 const SuccessModal = ({ isOpen, onClose, message }: { isOpen: boolean, onClose: () => void, message: string }) => {
   return (
@@ -87,21 +161,46 @@ const SuccessModal = ({ isOpen, onClose, message }: { isOpen: boolean, onClose: 
 
 // --- APP COMPONENT ---
 
-export default function App() {
-  const [activeSection, setActiveSection] = useState<Section>('home');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [successModal, setSuccessModal] = useState<{isOpen: boolean, message: string}>({ isOpen: false, message: '' });
-  const [generalTab, setGeneralTab] = useState<'newMember' | 'testimony' | 'prayer' | 'contact'>('newMember');
+// --- SHARED WRAPPER ---
+const PageWrapper = ({ children, isPublic = false }: { children: React.ReactNode, isPublic?: boolean }) => {
+  return (
+    <div className={`relative min-h-[80vh] ${isPublic ? 'flex flex-col items-center justify-center pt-[5vh] pb-[10vh]' : ''}`}>
+      <div className="geo-bg opacity-30" />
+      <div className="grid-bg" />
+      <div className="relative z-10 w-full max-w-7xl mx-auto">
+        {children}
+      </div>
+    </div>
+  );
+};
 
-  const closeSuccessModal = () => setSuccessModal({ ...successModal, isOpen: false });
-  const openSuccessModal = (message: string) => setSuccessModal({ isOpen: true, message });
+// --- LAYOUT COMPONENTS ---
 
-  const navigateTo = (section: Section, tab?: any) => {
-    setActiveSection(section);
-    if (tab && section === 'general') setGeneralTab(tab);
-    if (window.innerWidth < 768) setIsSidebarOpen(false);
-    window.scrollTo(0, 0);
-  };
+const DashboardLayout = ({ children, isProtected = false, isSidebarOpen, setIsSidebarOpen }: any) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const tokenQuery = token ? `?token=${token}` : '';
+
+  // Redirect to login if token is missing or invalid AND the route is protected
+  useEffect(() => {
+    if (isProtected && token !== SECRET_TOKEN) {
+      navigate('/login', { replace: true });
+    }
+  }, [token, navigate, isProtected]);
+
+  if (isProtected && token !== SECRET_TOKEN) return null;
+
+  const navItems = [
+    { path: '/', title: 'Dashboard', icon: HomeIcon, public: true },
+    { path: '/testimony', title: 'Testimony', icon: Send, public: true },
+    { path: '/prayer', title: 'Prayer Request', icon: UsersIcon, public: true },
+    { path: '/register', title: 'New Member', icon: CheckCircle2, public: true },
+    { path: '/contact', title: 'Feedback', icon: FileText, public: true },
+    { path: '/attendance', title: 'Attendance', icon: Calendar, public: false },
+    { path: '/finance', title: 'Finance', icon: DollarSign, public: false }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-void font-sans">
@@ -137,66 +236,202 @@ export default function App() {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-2">
-          {[
-            { id: 'home', title: 'Dashboard', icon: Home },
-            { id: 'general', title: 'General Ops', icon: FileText },
-            { id: 'experience', title: 'Experience', icon: Users },
-            { id: 'finance', title: 'Finance', icon: DollarSign }
-          ].map((item) => (
-            <button 
-              key={item.id}
-              onClick={() => navigateTo(item.id as Section)}
-              className={`sidebar-link w-full ${activeSection === item.id ? 'active' : ''}`}
-            >
-              <item.icon className="w-4 h-4" />
-              <span>{item.title}</span>
-              {activeSection === item.id && <motion.div layoutId="nav-dot" className="ml-auto w-1 h-1 rounded-full bg-white" />}
-            </button>
-          ))}
+        <nav className="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="text-[9px] font-black uppercase tracking-[0.3em] text-text-dim/40 mb-4 ml-4">SuperPortal Nav</div>
+          
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const isLocked = !item.public && token !== SECRET_TOKEN;
+            const targetPath = item.public 
+              ? `${item.path}${tokenQuery}` 
+              : (token === SECRET_TOKEN ? `${item.path}?token=${token}` : '/login');
+
+            return (
+              <Link 
+                key={item.path}
+                to={targetPath}
+                onClick={() => { if (window.innerWidth < 768) setIsSidebarOpen(false); }}
+                className={`sidebar-link w-full py-3.5 ${isActive ? 'active' : ''} ${isLocked ? 'opacity-60' : ''}`}
+              >
+                <item.icon className={`w-4 h-4 ${isLocked ? 'text-text-dim/30' : ''}`} />
+                <span className={isLocked ? 'text-text-dim/50 italic' : ''}>{item.title}</span>
+                {isLocked && <Lock className="ml-auto w-3 h-3 text-crimson/40" />}
+                {isActive && !isLocked && <motion.div layoutId="nav-dot" className="ml-auto w-1 h-1 rounded-full bg-white" />}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="pt-8 border-t border-white/5 mt-auto">
-          <button className="sidebar-link w-full opacity-40 hover:opacity-100 transition-opacity">
-            <LogOut className="w-4 h-4" />
-            <span>End Session</span>
-          </button>
+          {token === SECRET_TOKEN ? (
+            <button onClick={() => navigate('/login')} className="sidebar-link w-full opacity-40 hover:opacity-100 transition-opacity">
+              <LogOut className="w-4 h-4" />
+              <span>End Session</span>
+            </button>
+          ) : (
+            <button onClick={() => navigate('/login')} className="sidebar-link w-full opacity-60 hover:opacity-100 transition-opacity group">
+              <Lock className="w-4 h-4 group-hover:text-crimson transition-colors" />
+              <span>Staff Login</span>
+            </button>
+          )}
         </div>
       </motion.aside>
 
       <main className={`flex-1 min-h-screen relative transition-all duration-500 overflow-hidden ${isSidebarOpen ? 'md:pl-[320px]' : 'md:pl-0'}`}>
         <div className="max-w-[1440px] mx-auto p-6 md:px-24 md:py-24 relative z-10">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSection}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              {activeSection === 'home' && <HomeSection navigateTo={navigateTo} openSuccessModal={openSuccessModal} />}
-              {activeSection === 'general' && <GeneralSection openSuccessModal={openSuccessModal} activeTab={generalTab} setActiveTab={setGeneralTab} navigateTo={navigateTo} />}
-              {activeSection === 'experience' && <ExperienceSection openSuccessModal={openSuccessModal} navigateTo={navigateTo} />}
-              {activeSection === 'finance' && <FinanceSection openSuccessModal={openSuccessModal} navigateTo={navigateTo} />}
-            </motion.div>
-          </AnimatePresence>
+          {children}
         </div>
       </main>
+    </div>
+  );
+};
 
-      {/* Success Modal */}
+const PublicLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="min-h-screen bg-void font-sans relative overflow-x-hidden">
+      <div className="noise-overlay" />
+      <div className="grid-bg opacity-[0.05]" />
+      <div className="geo-bg" />
+      <div className="max-w-xl mx-auto p-6 md:py-24 relative z-10">
+        <div className="mb-12 flex flex-col items-center justify-center text-center">
+            <div className="w-12 h-12 bg-crimson rounded-2xl shadow-[0_0_30px_rgba(192,19,42,0.4)] flex items-center justify-center mb-6">
+              <span className="font-display text-3xl font-black italic text-white leading-none">S</span>
+            </div>
+            <h1 className="logo-text text-2xl tracking-[0.2em]">SuperPortal</h1>
+        </div>
+        {children}
+        <div className="mt-20 pt-8 border-t border-white/5 text-center">
+          <p className="text-[10px] text-text-dim/30 uppercase tracking-[0.5em] italic font-black">
+            Supernatural Life Church &copy; {new Date().getFullYear()}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- APP COMPONENT ---
+
+export default function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [successModal, setSuccessModal] = useState<{isOpen: boolean, message: string}>({ isOpen: false, message: '' });
+
+  const closeSuccessModal = () => setSuccessModal({ ...successModal, isOpen: false });
+  const openSuccessModal = (message: string) => setSuccessModal({ isOpen: true, message });
+
+  return (
+    <BrowserRouter>
+      <AppContent 
+        isSidebarOpen={isSidebarOpen} 
+        setIsSidebarOpen={setIsSidebarOpen}
+        successModal={successModal}
+        openSuccessModal={openSuccessModal}
+        closeSuccessModal={closeSuccessModal}
+      />
+    </BrowserRouter>
+  );
+}
+
+function AppContent({ isSidebarOpen, setIsSidebarOpen, successModal, openSuccessModal, closeSuccessModal }: any) {
+  const location = useLocation();
+
+  return (
+    <>
+      <AnimatePresence mode="wait">
+        <Routes location={location}>
+          {/* Public Login Route */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Internal Dashboard Routes */}
+          <Route path="/" element={
+            <DashboardLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isProtected={false}>
+              <HomeSection />
+            </DashboardLayout>
+          } />
+          <Route path="/attendance" element={
+            <DashboardLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isProtected={true}>
+              <AttendanceSection openSuccessModal={openSuccessModal} />
+            </DashboardLayout>
+          } />
+          <Route path="/finance" element={
+            <DashboardLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isProtected={true}>
+              <FinanceSection openSuccessModal={openSuccessModal} />
+            </DashboardLayout>
+          } />
+
+          {/* Public Portal Routes */}
+          <Route path="/testimony" element={
+            <DashboardLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isProtected={false}>
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                 <div className="flex items-center gap-4 mb-6">
+                    <span className="w-5 h-[1px] bg-crimson" />
+                    <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Public Share</span>
+                  </div>
+                  <h2 className="section-title mb-10">Testi<span className="italic">mony</span></h2>
+                  <TestimonyForm onSuccess={() => openSuccessModal('Thank you for sharing your testimony with us.')} />
+               </motion.div>
+            </DashboardLayout>
+          } />
+          <Route path="/prayer" element={
+            <DashboardLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isProtected={false}>
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                 <div className="flex items-center gap-4 mb-6">
+                    <span className="w-5 h-[1px] bg-crimson" />
+                    <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Pastoral Care</span>
+                  </div>
+                  <h2 className="section-title mb-10">Pray<span className="italic">er Request</span></h2>
+                  <PrayerForm onSuccess={() => openSuccessModal('Your prayer request has been received and sent to the pastoral team.')} />
+               </motion.div>
+            </DashboardLayout>
+          } />
+          <Route path="/register" element={
+            <DashboardLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isProtected={false}>
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                 <div className="flex items-center gap-4 mb-6">
+                    <span className="w-5 h-[1px] bg-crimson" />
+                    <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Registration</span>
+                  </div>
+                  <h2 className="section-title mb-10">New <span className="italic">Member</span></h2>
+                  <NewMemberForm onSuccess={() => openSuccessModal('Your registration has been submitted successfully.')} />
+               </motion.div>
+            </DashboardLayout>
+          } />
+          <Route path="/contact" element={
+            <DashboardLayout isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isProtected={false}>
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                 <div className="flex items-center gap-4 mb-6">
+                    <span className="w-5 h-[1px] bg-crimson" />
+                    <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Core Feedback</span>
+                  </div>
+                  <h2 className="section-title mb-10">Contact <span className="italic">& Feedback</span></h2>
+                  <ContactForm onSuccess={() => openSuccessModal('Your message has been sent. We will get back to you shortly.')} />
+               </motion.div>
+            </DashboardLayout>
+          } />
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AnimatePresence>
+
       <SuccessModal 
         isOpen={successModal.isOpen} 
         onClose={closeSuccessModal} 
         message={successModal.message} 
       />
       <div className="noise-overlay" />
-    </div>
+    </>
   );
 }
 
 // --- SECTION: HOME ---
 
-function HomeSection({ navigateTo }: { navigateTo: (s: Section, t?: any) => void, openSuccessModal: (m: string) => void, key?: any }) {
+function HomeSection() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+  const tokenQuery = token ? `?token=${token}` : '';
+
   return (
     <div className="min-h-[80vh] flex flex-col justify-between pt-[10vh] pb-[60px] relative overflow-hidden">
       {/* Background Elements */}
@@ -223,7 +458,7 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section, t?: any) => void
       {/* Quick Access Actions */}
       <div className="fade-up-4 relative z-10 flex flex-row gap-2 md:gap-4 max-w-[800px] mt-12 md:mt-16 text-center mx-auto px-2 md:px-4 w-full">
         <button 
-          onClick={() => navigateTo('general', 'testimony')}
+          onClick={() => navigate('/testimony')}
           className="flex-1 bg-crimson border border-crimson/50 rounded-[40px] py-4 md:py-8 px-2 md:px-10 group transition-all hover:bg-crimson-dark hover:-translate-y-1 shadow-2xl shadow-crimson/20 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6"
         >
           <div className="card-icon-wrap bg-white/10 border-white/20 w-8 h-8 md:w-10 md:h-10 mb-0">
@@ -233,11 +468,11 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section, t?: any) => void
         </button>
 
         <button 
-          onClick={() => navigateTo('general', 'prayer')}
+          onClick={() => navigate('/prayer')}
           className="flex-1 bg-crimson border border-crimson/50 rounded-[40px] py-4 md:py-8 px-2 md:px-10 group transition-all hover:bg-crimson-dark hover:-translate-y-1 shadow-2xl shadow-crimson/20 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6"
         >
           <div className="card-icon-wrap bg-white/10 border-white/20 w-8 h-8 md:w-10 md:h-10 mb-0">
-            <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
+            <UsersIcon className="w-4 h-4 md:w-5 md:h-5 text-white" />
           </div>
           <h3 className="text-[11px] sm:text-[14px] md:text-[22px] italic text-white font-bold leading-tight">Prayer</h3>
         </button>
@@ -246,38 +481,14 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section, t?: any) => void
       {/* Cards Grid */}
       <div className="fade-up-4 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 max-w-[800px] mt-6 md:mt-8 lg:mt-10 mx-auto">
         <button 
-          onClick={() => navigateTo('general', 'newMember')}
-          className="home-card text-left group min-h-[140px]"
-        >
-          <div className="card-icon-wrap">
-            <FileText className="w-4 h-4 text-text-dim group-hover:text-white transition-colors" />
-          </div>
-          <h3 className="text-[22px] italic mb-2">General Ops</h3>
-          <p className="text-[12px] text-text-dim font-sans">Member registration, testimonies, prayer and contact.</p>
-          <ChevronRight className="card-arrow w-5 h-5 transition-all" />
-        </button>
-
-        <button 
-          onClick={() => navigateTo('experience')}
+          onClick={() => navigate('/register')}
           className="home-card text-left group"
         >
           <div className="card-icon-wrap">
-            <Users className="w-4 h-4 text-text-dim group-hover:text-white transition-colors" />
+            <CheckCircle2 className="w-4 h-4 text-text-dim group-hover:text-white transition-colors" />
           </div>
-          <h3 className="text-[22px] italic mb-2">Experience</h3>
-          <p className="text-[12px] text-text-dim font-sans">Attendance tracking and devotional resources.</p>
-          <ChevronRight className="card-arrow w-5 h-5 transition-all" />
-        </button>
-
-        <button 
-          onClick={() => navigateTo('finance')}
-          className="home-card text-left group"
-        >
-          <div className="card-icon-wrap">
-            <DollarSign className="w-4 h-4 text-text-dim group-hover:text-white transition-colors" />
-          </div>
-          <h3 className="text-[22px] italic mb-2">Finance</h3>
-          <p className="text-[12px] text-text-dim font-sans">Reimbursements and tithe receipt requests.</p>
+          <h3 className="text-[22px] italic mb-2">New Member</h3>
+          <p className="text-[12px] text-text-dim font-sans">Register as a new member of the church family.</p>
           <ChevronRight className="card-arrow w-5 h-5 transition-all" />
         </button>
 
@@ -296,29 +507,20 @@ function HomeSection({ navigateTo }: { navigateTo: (s: Section, t?: any) => void
 
       {/* Bottom Footer Section */}
       <div className="fade-up-5 relative z-10 mt-12 md:mt-16 pt-8 border-t border-white/5 flex flex-wrap justify-center gap-3">
-        <button onClick={() => navigateTo('general')} className="quick-link group">
+        <button onClick={() => navigate('/register')} className="quick-link group">
           New Member <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
         </button>
-        <button onClick={() => navigateTo('experience')} className="quick-link group">
-          Attendance <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-        </button>
-        <button onClick={() => navigateTo('finance')} className="quick-link group">
-          Reimbursement <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+        <button onClick={() => navigate('/contact')} className="quick-link group">
+          Feedback <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </div>
   );
 }
 
-// --- SECTION: GENERAL ---
+// --- SECTION: ATTENDANCE ---
 
-function GeneralSection({ openSuccessModal, activeTab, setActiveTab, navigateTo }: { 
-  openSuccessModal: (m: string) => void, 
-  activeTab: 'newMember' | 'testimony' | 'prayer' | 'contact',
-  setActiveTab: (t: any) => void,
-  navigateTo: (s: any) => void,
-  key?: any 
-}) {
+function AttendanceSection({ openSuccessModal }: { openSuccessModal: (m: string) => void }) {
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -330,92 +532,19 @@ function GeneralSection({ openSuccessModal, activeTab, setActiveTab, navigateTo 
       <div className="grid-bg" />
 
       <div className="relative z-10">
-        <ReturnToDashboard onNavigate={() => navigateTo('home')} />
+        <ReturnToDashboard />
         <div className="fade-up-1 flex items-center gap-4 mb-6">
           <span className="w-5 h-[1px] bg-crimson" />
-          <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Portal / General</span>
+          <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Portal / Operations</span>
         </div>
         
         <h2 className="section-title fade-up-2 mb-10">
-          General<span className="italic">Ops</span>
+          Atten<span className="italic">dance</span>
         </h2>
-        
-        <div className="fade-up-3 flex flex-wrap gap-2 mb-12 pb-8 border-b border-white/5">
-          <button onClick={() => setActiveTab('newMember')} className={`tab-pill ${activeTab === 'newMember' ? 'active' : ''}`}>New Member</button>
-          <button onClick={() => setActiveTab('testimony')} className={`tab-pill ${activeTab === 'testimony' ? 'active' : ''}`}>Testimony</button>
-          <button onClick={() => setActiveTab('prayer')} className={`tab-pill ${activeTab === 'prayer' ? 'active' : ''}`}>Prayer Request</button>
-          <button onClick={() => setActiveTab('contact')} className={`tab-pill ${activeTab === 'contact' ? 'active' : ''}`}>Feedback</button>
+
+        <div className="fade-up-4 max-w-2xl">
+          <AttendanceForm key="att" onSuccess={() => openSuccessModal('Service metrics have been logged.')} />
         </div>
-
-        <AnimatePresence mode="wait">
-          <div className="fade-up-4 max-w-xl">
-            {activeTab === 'newMember' && <NewMemberForm key="nm" onSuccess={() => openSuccessModal('Your registration has been submitted successfully.')} />}
-            {activeTab === 'testimony' && <TestimonyForm key="test" onSuccess={() => openSuccessModal('Thank you for sharing your testimony with us.')} />}
-            {activeTab === 'prayer' && <PrayerForm key="pray" onSuccess={() => openSuccessModal('Your prayer request has been received and sent to the pastoral team.')} />}
-            {activeTab === 'contact' && <ContactForm key="contact" onSuccess={() => openSuccessModal('Your message has been sent. We will get back to you shortly.')} />}
-          </div>
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
-
-// --- SECTION: EXPERIENCE ---
-
-function ExperienceSection({ openSuccessModal, navigateTo }: { openSuccessModal: (m: string) => void, navigateTo: (s: any) => void, key?: any }) {
-  const [activeTab, setActiveTab] = useState<'attendance' | 'devotional'>('attendance');
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="relative min-h-[80vh]"
-    >
-      <div className="geo-bg opacity-30" />
-      <div className="grid-bg" />
-
-      <div className="relative z-10">
-        <ReturnToDashboard onNavigate={() => navigateTo('home')} />
-        <div className="fade-up-1 flex items-center gap-4 mb-6">
-          <span className="w-5 h-[1px] bg-crimson" />
-          <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Portal / Experience</span>
-        </div>
-        
-        <h2 className="section-title fade-up-2 mb-10">
-          Experi<span className="italic">ence</span>
-        </h2>
-        
-        <div className="fade-up-3 flex flex-wrap gap-2 mb-12 pb-8 border-b border-white/5">
-          <button onClick={() => setActiveTab('attendance')} className={`tab-pill ${activeTab === 'attendance' ? 'active' : ''}`}>Attendance</button>
-          <button onClick={() => setActiveTab('devotional')} className={`tab-pill ${activeTab === 'devotional' ? 'active' : ''}`}>Devotional</button>
-        </div>
-
-        <AnimatePresence mode="wait">
-          <div className="fade-up-4 max-w-2xl">
-            {activeTab === 'attendance' && <AttendanceForm key="att" onSuccess={() => openSuccessModal('Service metrics have been logged.')} />}
-            {activeTab === 'devotional' && (
-              <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="card-surface p-10">
-                <div className="card-icon-wrap w-14 h-14 bg-vibrant-purple/10 border-vibrant-purple/20 mb-8">
-                  <BookOpen className="w-6 h-6 text-vibrant-purple" />
-                </div>
-                <h3 className="text-3xl font-display mb-4 italic">{DEVOTIONAL_TITLE}</h3>
-                <p className="text-text-dim text-base mb-10 leading-relaxed italic">{DEVOTIONAL_DESCRIPTION}</p>
-                <button 
-                  onClick={() => window.open(DEVOTIONAL_URL, '_blank')}
-                  className="btn-primary w-full"
-                >
-                  Enter Devotional
-                </button>
-                <div className="mt-10 pt-6 border-t border-white/5">
-                  <p className="text-center text-[9px] text-text-dim/40 uppercase tracking-[0.3em] italic font-black">
-                    Contact the Media team for access support
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </div>
-        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -423,7 +552,7 @@ function ExperienceSection({ openSuccessModal, navigateTo }: { openSuccessModal:
 
 // --- SECTION: FINANCE ---
 
-function FinanceSection({ openSuccessModal, navigateTo }: { openSuccessModal: (m: string) => void, navigateTo: (s: any) => void, key?: any }) {
+function FinanceSection({ openSuccessModal }: { openSuccessModal: (m: string) => void }) {
   const [activeTab, setActiveTab] = useState<'reimbursement' | 'tithe'>('reimbursement');
 
   return (
@@ -437,7 +566,7 @@ function FinanceSection({ openSuccessModal, navigateTo }: { openSuccessModal: (m
       <div className="grid-bg" />
 
       <div className="relative z-10">
-        <ReturnToDashboard onNavigate={() => navigateTo('home')} />
+        <ReturnToDashboard />
         <div className="fade-up-1 flex items-center gap-4 mb-6">
           <span className="w-5 h-[1px] bg-crimson" />
           <span className="text-[10px] font-sans uppercase tracking-[0.3em] text-text-dim font-bold">Portal / Finance</span>
